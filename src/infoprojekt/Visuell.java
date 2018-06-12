@@ -5,7 +5,9 @@
  */
 package infoprojekt;
 
+import java.awt.Color;
 import java.awt.Graphics;
+import java.awt.Graphics2D;
 
 /**
  *
@@ -13,8 +15,8 @@ import java.awt.Graphics;
  */
 public class Visuell extends javax.swing.JFrame {
 
-    private Knoten[] alleKnoten;
-    private double[][] abstaende;
+    private Graph graph;
+   
 
     /**
      * Creates new form Visuell
@@ -22,7 +24,8 @@ public class Visuell extends javax.swing.JFrame {
     public Visuell() {
         initComponents();
 
-        delaySlider.setVisible(false);
+        runBtn.setEnabled(false);
+        runBtn.setVisible(true);
     }
 
     /**
@@ -34,7 +37,7 @@ public class Visuell extends javax.swing.JFrame {
     // <editor-fold defaultstate="collapsed" desc="Generated Code">//GEN-BEGIN:initComponents
     private void initComponents() {
 
-        knotenPanel = new javax.swing.JPanel();
+        nodePanel = new javax.swing.JPanel();
         resetBtn = new javax.swing.JButton();
         delaySlider = new javax.swing.JSlider();
         jLabel1 = new javax.swing.JLabel();
@@ -43,21 +46,26 @@ public class Visuell extends javax.swing.JFrame {
         jLabel3 = new javax.swing.JLabel();
         platzierungModusCombo = new javax.swing.JComboBox<>();
         jLabel4 = new javax.swing.JLabel();
-        simModusCombo = new javax.swing.JComboBox<>();
         runBtn = new javax.swing.JButton();
+        delayLbl = new javax.swing.JLabel();
 
         setDefaultCloseOperation(javax.swing.WindowConstants.EXIT_ON_CLOSE);
 
-        knotenPanel.setBackground(new java.awt.Color(204, 204, 255));
+        nodePanel.setBackground(new java.awt.Color(0, 0, 0));
+        nodePanel.addMouseListener(new java.awt.event.MouseAdapter() {
+            public void mouseClicked(java.awt.event.MouseEvent evt) {
+                nodePanelMouseClicked(evt);
+            }
+        });
 
-        javax.swing.GroupLayout knotenPanelLayout = new javax.swing.GroupLayout(knotenPanel);
-        knotenPanel.setLayout(knotenPanelLayout);
-        knotenPanelLayout.setHorizontalGroup(
-            knotenPanelLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+        javax.swing.GroupLayout nodePanelLayout = new javax.swing.GroupLayout(nodePanel);
+        nodePanel.setLayout(nodePanelLayout);
+        nodePanelLayout.setHorizontalGroup(
+            nodePanelLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
             .addGap(0, 0, Short.MAX_VALUE)
         );
-        knotenPanelLayout.setVerticalGroup(
-            knotenPanelLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+        nodePanelLayout.setVerticalGroup(
+            nodePanelLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
             .addGap(0, 329, Short.MAX_VALUE)
         );
 
@@ -68,14 +76,14 @@ public class Visuell extends javax.swing.JFrame {
             }
         });
 
-        delaySlider.setMaximum(10);
-        delaySlider.setMinorTickSpacing(1);
+        delaySlider.setMaximum(1000);
+        delaySlider.setMinorTickSpacing(100);
         delaySlider.setPaintTicks(true);
         delaySlider.setSnapToTicks(true);
         delaySlider.setToolTipText("Sekunden");
         delaySlider.setNextFocusableComponent(delaySlider);
 
-        jLabel1.setText("Ausführung:");
+        jLabel1.setText("Simulation (Takt):");
 
         erstelleBaumBtn.setText("Erstellen");
         erstelleBaumBtn.addActionListener(new java.awt.event.ActionListener() {
@@ -84,7 +92,7 @@ public class Visuell extends javax.swing.JFrame {
             }
         });
 
-        anzahlKnotenTxt.setText("10");
+        anzahlKnotenTxt.setText("5");
         anzahlKnotenTxt.setToolTipText("Anzahl Knoten");
         anzahlKnotenTxt.addActionListener(new java.awt.event.ActionListener() {
             public void actionPerformed(java.awt.event.ActionEvent evt) {
@@ -103,13 +111,6 @@ public class Visuell extends javax.swing.JFrame {
 
         jLabel4.setText("Platzierung:");
 
-        simModusCombo.setModel(new javax.swing.DefaultComboBoxModel<>(new String[] { "Einzelschritt", "Simulation" }));
-        simModusCombo.addActionListener(new java.awt.event.ActionListener() {
-            public void actionPerformed(java.awt.event.ActionEvent evt) {
-                simModusComboActionPerformed(evt);
-            }
-        });
-
         runBtn.setText("Los!");
         runBtn.addActionListener(new java.awt.event.ActionListener() {
             public void actionPerformed(java.awt.event.ActionEvent evt) {
@@ -121,56 +122,62 @@ public class Visuell extends javax.swing.JFrame {
         getContentPane().setLayout(layout);
         layout.setHorizontalGroup(
             layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-            .addComponent(knotenPanel, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
+            .addComponent(nodePanel, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
             .addGroup(layout.createSequentialGroup()
                 .addContainerGap()
-                .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.TRAILING)
+                .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
                     .addGroup(layout.createSequentialGroup()
-                        .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-                            .addComponent(jLabel3)
-                            .addComponent(jLabel4))
+                        .addGap(100, 100, 100)
+                        .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.TRAILING)
+                            .addGroup(layout.createSequentialGroup()
+                                .addComponent(jLabel4)
+                                .addGap(40, 40, 40)
+                                .addComponent(platzierungModusCombo, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))
+                            .addGroup(layout.createSequentialGroup()
+                                .addComponent(erstelleBaumBtn, javax.swing.GroupLayout.PREFERRED_SIZE, 94, javax.swing.GroupLayout.PREFERRED_SIZE)
+                                .addGap(2, 2, 2)
+                                .addComponent(resetBtn, javax.swing.GroupLayout.PREFERRED_SIZE, 130, javax.swing.GroupLayout.PREFERRED_SIZE))))
+                    .addGroup(layout.createSequentialGroup()
+                        .addComponent(jLabel3)
                         .addGap(24, 24, 24)
-                        .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-                            .addComponent(platzierungModusCombo, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
-                            .addComponent(anzahlKnotenTxt, javax.swing.GroupLayout.PREFERRED_SIZE, 31, javax.swing.GroupLayout.PREFERRED_SIZE)))
-                    .addGroup(layout.createSequentialGroup()
-                        .addComponent(erstelleBaumBtn, javax.swing.GroupLayout.PREFERRED_SIZE, 94, javax.swing.GroupLayout.PREFERRED_SIZE)
-                        .addGap(2, 2, 2)
-                        .addComponent(resetBtn, javax.swing.GroupLayout.PREFERRED_SIZE, 130, javax.swing.GroupLayout.PREFERRED_SIZE)))
+                        .addComponent(anzahlKnotenTxt, javax.swing.GroupLayout.PREFERRED_SIZE, 31, javax.swing.GroupLayout.PREFERRED_SIZE)))
                 .addGap(101, 101, 101)
                 .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-                    .addComponent(jLabel1)
-                    .addComponent(runBtn, javax.swing.GroupLayout.PREFERRED_SIZE, 75, javax.swing.GroupLayout.PREFERRED_SIZE))
-                .addGap(18, 18, 18)
-                .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-                    .addComponent(simModusCombo, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
+                    .addComponent(runBtn, javax.swing.GroupLayout.PREFERRED_SIZE, 75, javax.swing.GroupLayout.PREFERRED_SIZE)
+                    .addGroup(layout.createSequentialGroup()
+                        .addComponent(jLabel1)
+                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.UNRELATED)
+                        .addComponent(delayLbl))
                     .addComponent(delaySlider, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))
-                .addContainerGap(21, Short.MAX_VALUE))
+                .addContainerGap(14, Short.MAX_VALUE))
         );
         layout.setVerticalGroup(
             layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
             .addGroup(layout.createSequentialGroup()
-                .addComponent(knotenPanel, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
-                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
-                    .addComponent(jLabel3)
-                    .addComponent(anzahlKnotenTxt, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))
-                .addGap(35, 35, 35)
-                .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
-                    .addComponent(jLabel4)
-                    .addComponent(platzierungModusCombo, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
-                    .addComponent(jLabel1)
-                    .addComponent(simModusCombo, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))
+                .addComponent(nodePanel, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
                 .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
                     .addGroup(layout.createSequentialGroup()
-                        .addGap(22, 22, 22)
+                        .addGap(30, 30, 30)
                         .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
-                            .addComponent(erstelleBaumBtn)
-                            .addComponent(resetBtn)
-                            .addComponent(runBtn)))
+                            .addComponent(jLabel3)
+                            .addComponent(anzahlKnotenTxt, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))
+                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.UNRELATED)
+                        .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
+                            .addComponent(jLabel4)
+                            .addComponent(platzierungModusCombo, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))
+                        .addGap(22, 22, 22))
                     .addGroup(javax.swing.GroupLayout.Alignment.TRAILING, layout.createSequentialGroup()
                         .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                        .addComponent(delaySlider, javax.swing.GroupLayout.PREFERRED_SIZE, 22, javax.swing.GroupLayout.PREFERRED_SIZE)))
+                        .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
+                            .addComponent(jLabel1)
+                            .addComponent(delayLbl))
+                        .addGap(15, 15, 15)
+                        .addComponent(delaySlider, javax.swing.GroupLayout.PREFERRED_SIZE, 22, javax.swing.GroupLayout.PREFERRED_SIZE)
+                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.UNRELATED)))
+                .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
+                    .addComponent(erstelleBaumBtn)
+                    .addComponent(resetBtn)
+                    .addComponent(runBtn))
                 .addContainerGap(17, Short.MAX_VALUE))
         );
 
@@ -179,30 +186,41 @@ public class Visuell extends javax.swing.JFrame {
 
     private void erstelleBaumBtnActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_erstelleBaumBtnActionPerformed
         if (platzierungModusCombo.getSelectedIndex() == 0) {
+            if (anzahlKnotenTxt.getText().isEmpty())
+            {
+                anzahlKnotenTxt.setText("2");
+            }
+            int nodeCount = Integer.valueOf(anzahlKnotenTxt.getText());
+            if (nodeCount <= 0) {
+                nodeCount = 2;
+                anzahlKnotenTxt.setText(String.valueOf(nodeCount));
+            }
             //Zufällige Anordnung
             platziereZufaellig(
                     Integer.valueOf(anzahlKnotenTxt.getText()),
-                    knotenPanel.getWidth(), knotenPanel.getHeight()
+                    nodePanel.getWidth(), nodePanel.getHeight()
             );
-            zeichneKnoten();
+            drawGraph();
+            runBtn.setEnabled(true);
         } else {
             //Manuell
         }
     }//GEN-LAST:event_erstelleBaumBtnActionPerformed
 
     private void runBtnActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_runBtnActionPerformed
-        // TODO add your handling code here:
+        graph.setDelay(delaySlider.getValue());
+
+        graph.minimalSanningTree(nodePanel.getGraphics());
+        runBtn.setEnabled(false);
+
     }//GEN-LAST:event_runBtnActionPerformed
 
-    private void simModusComboActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_simModusComboActionPerformed
-
-        delaySlider.setVisible(simModusCombo.getSelectedIndex() == 1);
-
-
-    }//GEN-LAST:event_simModusComboActionPerformed
-
     private void platzierungModusComboActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_platzierungModusComboActionPerformed
+        reset();
+        anzahlKnotenTxt.setText("");
+        erstelleBaumBtn.setVisible(platzierungModusCombo.getSelectedIndex() == 0);
 
+                
     }//GEN-LAST:event_platzierungModusComboActionPerformed
 
     private void anzahlKnotenTxtActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_anzahlKnotenTxtActionPerformed
@@ -216,16 +234,35 @@ public class Visuell extends javax.swing.JFrame {
     }//GEN-LAST:event_anzahlKnotenTxtActionPerformed
 
     private void resetBtnActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_resetBtnActionPerformed
-        loeschen();
+        reset();
+
+        runBtn.setEnabled(false);
 
     }//GEN-LAST:event_resetBtnActionPerformed
 
-    private void loeschen() {
+    private void nodePanelMouseClicked(java.awt.event.MouseEvent evt) {//GEN-FIRST:event_nodePanelMouseClicked
 
-        alleKnoten = null;
-        abstaende = null;
-        Graphics g = knotenPanel.getGraphics();
-        g.clearRect(0, 0, knotenPanel.getWidth(), knotenPanel.getHeight());
+        if (platzierungModusCombo.getSelectedIndex() == 1) {
+            Graphics2D g2d = (Graphics2D) nodePanel.getGraphics();
+            int x = evt.getX() - Graph.nodeWidth / 2;
+            int y = evt.getY() - Graph.nodeWidth / 2;
+            graph.addNode(graph.getNodeCount(), x, y);
+            graph.draw(g2d);
+            anzahlKnotenTxt.setText(String.valueOf(graph.getNodeCount()));
+        }
+       
+            runBtn.setEnabled(graph.getNodeCount() > 1);
+
+    }//GEN-LAST:event_nodePanelMouseClicked
+
+    private void reset() {
+
+        graph = new Graph(nodePanel.getWidth(), nodePanel.getHeight());
+        graph.init(Integer.valueOf(anzahlKnotenTxt.getText()));
+       
+        nodePanel.getGraphics().fillRect(0, 0, nodePanel.getWidth(), nodePanel.getHeight());
+      
+      
     }
 
     /**
@@ -265,59 +302,36 @@ public class Visuell extends javax.swing.JFrame {
 
     // Variables declaration - do not modify//GEN-BEGIN:variables
     private javax.swing.JTextField anzahlKnotenTxt;
+    private javax.swing.JLabel delayLbl;
     private javax.swing.JSlider delaySlider;
     private javax.swing.JButton erstelleBaumBtn;
     private javax.swing.JLabel jLabel1;
     private javax.swing.JLabel jLabel3;
     private javax.swing.JLabel jLabel4;
-    private javax.swing.JPanel knotenPanel;
+    private javax.swing.JPanel nodePanel;
     private javax.swing.JComboBox<String> platzierungModusCombo;
     private javax.swing.JButton resetBtn;
     private javax.swing.JButton runBtn;
-    private javax.swing.JComboBox<String> simModusCombo;
     // End of variables declaration//GEN-END:variables
 
-    private void platziereZufaellig(int anzahl, int maxX, int maxY) {
+    private void platziereZufaellig(int count, int screenWidth, int screenHeight) {
 
-        if (anzahl < 0) {
+        if (count < 0) {
             return;
         }
 
-        loeschen();
+        reset();
 
-        alleKnoten = new Knoten[anzahl];
-        abstaende = new double[anzahl][anzahl];
-
-        // Erzeuge alle Knoten mit zufälligen Koordinaten
-        for (int idx = 0; idx < anzahl; idx++) {
-
-            Knoten i = Knoten.erzeugeZufallsknoten(maxX, maxY);
-            int j = 0;
-            while (j < idx) {
-                if (alleKnoten[j].deckend(i)) {
-                    i = Knoten.erzeugeZufallsknoten(maxX, maxY);
-                    continue;
-                }
-                j++;
-            }
-            alleKnoten[idx] = i;
-        }
-
-        // Berechnde die Absaände
-        for (int j = 0; j < anzahl; j++) {
-            for (int k = 0; k < anzahl; k++) {
-                abstaende[j][k] = alleKnoten[j].abstand(alleKnoten[k]);
-            }
-        }
-
+        graph = new Graph(screenWidth, screenHeight);
+        graph.init(count);
+        graph.fillRandomly();
+        
     }
 
-    private void zeichneKnoten() {
-        Graphics g = knotenPanel.getGraphics();
-
-        for (int idx = 0; idx < alleKnoten.length; idx++) {
-            g.fillRect(alleKnoten[idx].getX(), alleKnoten[idx].getY(), Knoten.breite, Knoten.breite);
-        }
+    private void drawGraph() {
+        
+        graph.draw(nodePanel.getGraphics());
+        
     }
 
 }
