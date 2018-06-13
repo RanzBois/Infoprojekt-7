@@ -211,19 +211,22 @@ public class Graph {
      *
      * @param g Graphik Kontext
      */
-    public void draw(Graphics g) {
+    public void draw(Graphics g, boolean withEdges) {
 
         Graphics2D g2d = (Graphics2D) g;
 
         // Zeichne alle Kanten in grau mit normaler Strichstärke
-        g2d.setColor(Color.DARK_GRAY);
-        g2d.setStroke(new BasicStroke(EDGE_NORMAL_WIDTH));
+        if (withEdges) {
+            g2d.setColor(Color.DARK_GRAY);
 
-        for (int idx = 0; idx < edges.size(); idx++) {
-            final Edge e = edges.get(idx);
-            final Node from = e.getOrigin();
-            final Node to = e.getTarget();
-            g.drawLine(from.getX(), from.getY(), to.getX(), to.getY());
+            g2d.setStroke(new BasicStroke(EDGE_NORMAL_WIDTH));
+
+            for (int idx = 0; idx < edges.size(); idx++) {
+                final Edge e = edges.get(idx);
+                final Node from = e.getOrigin();
+                final Node to = e.getTarget();
+                g.drawLine(from.getX(), from.getY(), to.getX(), to.getY());
+            }
         }
 
         // und erst anschliessend die Konten darüber
