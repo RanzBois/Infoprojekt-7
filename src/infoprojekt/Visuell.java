@@ -1,13 +1,24 @@
-/*
- * To change this license header, choose License Headers in Project Properties.
- * To change this template file, choose Tools | Templates
- * and open the template in the editor.
+/**
+ * Project:
+ * 
+ *  Minimal Spanning Trees
+ *  ESG Kornwestheim, KS1
+ * 
+ * Authors:
+ * 
+ * -´Aykon Kücük
+ * - Leon Broßwitz
+ * 
+ * (c) June 2018
  */
+
 package infoprojekt;
 
-import java.awt.Color;
-import java.awt.Graphics;
+import java.awt.Dimension;
 import java.awt.Graphics2D;
+import javax.swing.JLabel;
+import javax.swing.JPanel;
+import javax.swing.JProgressBar;
 
 /**
  *
@@ -48,10 +59,19 @@ public class Visuell extends javax.swing.JFrame {
         jLabel4 = new javax.swing.JLabel();
         runBtn = new javax.swing.JButton();
         delayLbl = new javax.swing.JLabel();
+        progressBar = new javax.swing.JProgressBar();
+        jLabel2 = new javax.swing.JLabel();
+        totalEdgesLbl = new javax.swing.JLabel();
 
         setDefaultCloseOperation(javax.swing.WindowConstants.EXIT_ON_CLOSE);
+        setMaximumSize(new java.awt.Dimension(1024, 1024));
+        setPreferredSize(new java.awt.Dimension(640, 640));
 
         nodePanel.setBackground(new java.awt.Color(0, 0, 0));
+        nodePanel.setForeground(new java.awt.Color(255, 255, 255));
+        nodePanel.setToolTipText("");
+        nodePanel.setMaximumSize(new java.awt.Dimension(1024, 1024));
+        nodePanel.setName(""); // NOI18N
         nodePanel.addMouseListener(new java.awt.event.MouseAdapter() {
             public void mouseClicked(java.awt.event.MouseEvent evt) {
                 nodePanelMouseClicked(evt);
@@ -66,7 +86,7 @@ public class Visuell extends javax.swing.JFrame {
         );
         nodePanelLayout.setVerticalGroup(
             nodePanelLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-            .addGap(0, 329, Short.MAX_VALUE)
+            .addGap(0, 501, Short.MAX_VALUE)
         );
 
         resetBtn.setText("Zürücksetzen");
@@ -82,6 +102,11 @@ public class Visuell extends javax.swing.JFrame {
         delaySlider.setSnapToTicks(true);
         delaySlider.setToolTipText("Sekunden");
         delaySlider.setNextFocusableComponent(delaySlider);
+        delaySlider.addChangeListener(new javax.swing.event.ChangeListener() {
+            public void stateChanged(javax.swing.event.ChangeEvent evt) {
+                delaySliderStateChanged(evt);
+            }
+        });
 
         jLabel1.setText("Simulation (Takt):");
 
@@ -92,7 +117,7 @@ public class Visuell extends javax.swing.JFrame {
             }
         });
 
-        anzahlKnotenTxt.setText("5");
+        anzahlKnotenTxt.setText("10");
         anzahlKnotenTxt.setToolTipText("Anzahl Knoten");
         anzahlKnotenTxt.addActionListener(new java.awt.event.ActionListener() {
             public void actionPerformed(java.awt.event.ActionEvent evt) {
@@ -118,6 +143,8 @@ public class Visuell extends javax.swing.JFrame {
             }
         });
 
+        jLabel2.setText("Gesamtkosten:");
+
         javax.swing.GroupLayout layout = new javax.swing.GroupLayout(getContentPane());
         getContentPane().setLayout(layout);
         layout.setHorizontalGroup(
@@ -127,58 +154,62 @@ public class Visuell extends javax.swing.JFrame {
                 .addContainerGap()
                 .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
                     .addGroup(layout.createSequentialGroup()
-                        .addGap(100, 100, 100)
-                        .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.TRAILING)
-                            .addGroup(layout.createSequentialGroup()
-                                .addComponent(jLabel4)
-                                .addGap(40, 40, 40)
-                                .addComponent(platzierungModusCombo, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))
-                            .addGroup(layout.createSequentialGroup()
-                                .addComponent(erstelleBaumBtn, javax.swing.GroupLayout.PREFERRED_SIZE, 94, javax.swing.GroupLayout.PREFERRED_SIZE)
-                                .addGap(2, 2, 2)
-                                .addComponent(resetBtn, javax.swing.GroupLayout.PREFERRED_SIZE, 130, javax.swing.GroupLayout.PREFERRED_SIZE))))
-                    .addGroup(layout.createSequentialGroup()
-                        .addComponent(jLabel3)
+                        .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+                            .addComponent(jLabel3)
+                            .addComponent(jLabel4))
                         .addGap(24, 24, 24)
-                        .addComponent(anzahlKnotenTxt, javax.swing.GroupLayout.PREFERRED_SIZE, 31, javax.swing.GroupLayout.PREFERRED_SIZE)))
-                .addGap(101, 101, 101)
+                        .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+                            .addComponent(anzahlKnotenTxt, javax.swing.GroupLayout.PREFERRED_SIZE, 31, javax.swing.GroupLayout.PREFERRED_SIZE)
+                            .addComponent(platzierungModusCombo, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)))
+                    .addGroup(layout.createSequentialGroup()
+                        .addComponent(erstelleBaumBtn, javax.swing.GroupLayout.PREFERRED_SIZE, 94, javax.swing.GroupLayout.PREFERRED_SIZE)
+                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                        .addComponent(resetBtn, javax.swing.GroupLayout.PREFERRED_SIZE, 130, javax.swing.GroupLayout.PREFERRED_SIZE)))
+                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, 47, Short.MAX_VALUE)
                 .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-                    .addComponent(runBtn, javax.swing.GroupLayout.PREFERRED_SIZE, 75, javax.swing.GroupLayout.PREFERRED_SIZE)
+                    .addGroup(layout.createSequentialGroup()
+                        .addComponent(runBtn, javax.swing.GroupLayout.PREFERRED_SIZE, 75, javax.swing.GroupLayout.PREFERRED_SIZE)
+                        .addGap(18, 18, 18)
+                        .addComponent(jLabel2)
+                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.UNRELATED)
+                        .addComponent(totalEdgesLbl))
                     .addGroup(layout.createSequentialGroup()
                         .addComponent(jLabel1)
-                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.UNRELATED)
-                        .addComponent(delayLbl))
-                    .addComponent(delaySlider, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))
-                .addContainerGap(14, Short.MAX_VALUE))
+                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                        .addComponent(delayLbl, javax.swing.GroupLayout.PREFERRED_SIZE, 49, javax.swing.GroupLayout.PREFERRED_SIZE))
+                    .addComponent(delaySlider, javax.swing.GroupLayout.PREFERRED_SIZE, 329, javax.swing.GroupLayout.PREFERRED_SIZE))
+                .addContainerGap(35, Short.MAX_VALUE))
+            .addComponent(progressBar, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
         );
         layout.setVerticalGroup(
             layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
             .addGroup(layout.createSequentialGroup()
                 .addComponent(nodePanel, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
-                .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+                .addGap(5, 5, 5)
+                .addComponent(progressBar, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
+                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.UNRELATED)
+                .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING, false)
                     .addGroup(layout.createSequentialGroup()
-                        .addGap(30, 30, 30)
                         .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
                             .addComponent(jLabel3)
-                            .addComponent(anzahlKnotenTxt, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))
+                            .addComponent(anzahlKnotenTxt, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
+                            .addComponent(jLabel1))
                         .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.UNRELATED)
                         .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
                             .addComponent(jLabel4)
-                            .addComponent(platzierungModusCombo, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))
-                        .addGap(22, 22, 22))
-                    .addGroup(javax.swing.GroupLayout.Alignment.TRAILING, layout.createSequentialGroup()
-                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                        .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
-                            .addComponent(jLabel1)
-                            .addComponent(delayLbl))
-                        .addGap(15, 15, 15)
-                        .addComponent(delaySlider, javax.swing.GroupLayout.PREFERRED_SIZE, 22, javax.swing.GroupLayout.PREFERRED_SIZE)
-                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.UNRELATED)))
+                            .addComponent(platzierungModusCombo, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)))
+                    .addGroup(layout.createSequentialGroup()
+                        .addComponent(delayLbl, javax.swing.GroupLayout.PREFERRED_SIZE, 18, javax.swing.GroupLayout.PREFERRED_SIZE)
+                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
+                        .addComponent(delaySlider, javax.swing.GroupLayout.PREFERRED_SIZE, 22, javax.swing.GroupLayout.PREFERRED_SIZE)))
+                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.UNRELATED)
                 .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
                     .addComponent(erstelleBaumBtn)
                     .addComponent(resetBtn)
-                    .addComponent(runBtn))
-                .addContainerGap(17, Short.MAX_VALUE))
+                    .addComponent(runBtn)
+                    .addComponent(jLabel2)
+                    .addComponent(totalEdgesLbl))
+                .addContainerGap(22, Short.MAX_VALUE))
         );
 
         pack();
@@ -196,12 +227,11 @@ public class Visuell extends javax.swing.JFrame {
                 anzahlKnotenTxt.setText(String.valueOf(nodeCount));
             }
             //Zufällige Anordnung
-            platziereZufaellig(
-                    Integer.valueOf(anzahlKnotenTxt.getText()),
-                    nodePanel.getWidth(), nodePanel.getHeight()
-            );
+            platziereZufaellig(Integer.valueOf(anzahlKnotenTxt.getText()), nodePanel.getSize());
             drawGraph();
             runBtn.setEnabled(true);
+            progressBar.setValue(0);
+            
         } else {
             //Manuell
         }
@@ -209,8 +239,9 @@ public class Visuell extends javax.swing.JFrame {
 
     private void runBtnActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_runBtnActionPerformed
         graph.setDelay(delaySlider.getValue());
-
-        graph.minimalSanningTree(nodePanel.getGraphics());
+        progressBar.setMaximum(graph.getNodeCount()-1);
+        progressBar.setValue(0);
+        graph.minimalSanningTree(this);
         runBtn.setEnabled(false);
 
     }//GEN-LAST:event_runBtnActionPerformed
@@ -244,25 +275,32 @@ public class Visuell extends javax.swing.JFrame {
 
         if (platzierungModusCombo.getSelectedIndex() == 1) {
             Graphics2D g2d = (Graphics2D) nodePanel.getGraphics();
-            int x = evt.getX() - Graph.nodeWidth / 2;
-            int y = evt.getY() - Graph.nodeWidth / 2;
+            int x = evt.getX() - Node.width/ 2;
+            int y = evt.getY() - Node.width / 2;
             graph.addNode(graph.getNodeCount(), x, y);
             graph.draw(g2d);
             anzahlKnotenTxt.setText(String.valueOf(graph.getNodeCount()));
         }
-       
+
+        if (graph != null)
             runBtn.setEnabled(graph.getNodeCount() > 1);
 
     }//GEN-LAST:event_nodePanelMouseClicked
 
-    private void reset() {
-
-        graph = new Graph(nodePanel.getWidth(), nodePanel.getHeight());
-        graph.init(Integer.valueOf(anzahlKnotenTxt.getText()));
+    private void delaySliderStateChanged(javax.swing.event.ChangeEvent evt) {//GEN-FIRST:event_delaySliderStateChanged
+       delayLbl.setText(delaySlider.getValue()+ " ms");
        
+    }//GEN-LAST:event_delaySliderStateChanged
+
+    /**
+     *
+     */
+    private void reset() {
+        graph = new Graph(nodePanel.getSize());
+        graph.init(Integer.valueOf(anzahlKnotenTxt.getText()));
         nodePanel.getGraphics().fillRect(0, 0, nodePanel.getWidth(), nodePanel.getHeight());
-      
-      
+        totalEdgesLbl.setText("");
+
     }
 
     /**
@@ -306,15 +344,38 @@ public class Visuell extends javax.swing.JFrame {
     private javax.swing.JSlider delaySlider;
     private javax.swing.JButton erstelleBaumBtn;
     private javax.swing.JLabel jLabel1;
+    private javax.swing.JLabel jLabel2;
     private javax.swing.JLabel jLabel3;
     private javax.swing.JLabel jLabel4;
     private javax.swing.JPanel nodePanel;
     private javax.swing.JComboBox<String> platzierungModusCombo;
+    private javax.swing.JProgressBar progressBar;
     private javax.swing.JButton resetBtn;
     private javax.swing.JButton runBtn;
+    private javax.swing.JLabel totalEdgesLbl;
     // End of variables declaration//GEN-END:variables
 
-    private void platziereZufaellig(int count, int screenWidth, int screenHeight) {
+    public JProgressBar getProgressBar()
+    {
+        return progressBar;
+    }
+    
+    public JPanel getPanel()
+    {
+        return nodePanel;
+    }
+  
+    public JLabel getTotalEdgesLbl()
+    {
+        return totalEdgesLbl;
+    }
+        
+    
+            
+    /**
+     *
+     */
+    private void platziereZufaellig(int count, Dimension dimension) {
 
         if (count < 0) {
             return;
@@ -322,16 +383,18 @@ public class Visuell extends javax.swing.JFrame {
 
         reset();
 
-        graph = new Graph(screenWidth, screenHeight);
+        graph = new Graph(dimension);
         graph.init(count);
         graph.fillRandomly();
-        
+
     }
 
+    /**
+     *
+     */
     private void drawGraph() {
-        
-        graph.draw(nodePanel.getGraphics());
-        
+
+        graph.draw(nodePanel.getGraphics());   
     }
 
 }
