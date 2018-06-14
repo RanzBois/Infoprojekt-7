@@ -69,21 +69,12 @@ public class Graph {
      * Simulationsschritten haben wollen.
      */
     private int delayMillis;
-    
+
     /**
-     * Die Variable gibt die Gesamtkosten des Minimal Aufspannenden Baumes zurück
+     * Die Variable gibt die Gesamtkosten des Minimal Aufspannenden Baumes
+     * zurück
      */
     private double totalCost;
-
-    /**
-     * Diese lokale Klasse benötigen wir für den Kruskal Algorithmus um
-     * festzustellen, ob unser graph Zyklen hat oder nicht.
-     */
-    private class SubSet {
-
-        int parent;
-        int rank;
-    };
 
     /**
      * Dieser Konstruktor wird mit den Abmessungen unseres zeichenfensters
@@ -128,8 +119,6 @@ public class Graph {
     public int getNodeCount() {
         return nodes.size();
     }
-    
-    
 
     /**
      * Diese Methode liefert uns die Anzhal der gewünhscten Knoten zurück
@@ -253,77 +242,118 @@ public class Graph {
         }
     }
 
+    //
     /**
-     * Mit dieser Hilfsfunktion bestimmen wir die Untermenge eines Graphen
-     * nach der kruskal Methode.
-     * 
-     * @param subsets
+     * Diese lokale Klasse benötigen wir für den Kruskal Algorithmus um
+     * festzustellen, ob unser Graph Zyklen hat oder nicht.
+     */
+    private class SubSet {
+
+        // Verweis auf den Vater
+        int parent;
+        // die Gewichtung einer Kante
+        int rank;
+    };
+
+    /**
+     * Mit dieser (rekursiven) Hilfsfunktion bestimmen wir die Untermenge eines
+     * Graphen nach der Kruskal Methode.
+     *
+     * @param subSets
      * @param i
      * @return
      */
-    int find(SubSet subsets[], int i) {
-        // find root and make root as parent of i (path compression)
-        if (subsets[i].parent != i) {
-            subsets[i].parent = find(subsets, subsets[i].parent);
-        }
+    private int find(SubSet[] subSets, int i) {
 
-        return subsets[i].parent;
+        /**
+         * Wir sucheh nach der Wurzel and machen iesen dann zum Vater von i
+         * (Kompression des Pfades)
+         */
+        if (subSets[i].parent != i) {
+            subSets[i].parent = find(subSets, subSets[i].parent);
+        }
+        return subSets[i].parent;
     }
 
     /**
      *
      * @param subsets
-     * @param x
-     * @param y
+     * @param origin
+     * @param target
      */
-    void Union(SubSet subsets[], int x, int y) {
-        int xroot = find(subsets, x);
-        int yroot = find(subsets, y);
+    void Union(SubSet subsets[], int origin, int target) {
+        int originRoot = find(subsets, origin);
+        int targetRoot = find(subsets, target);
 
-        // Attach smaller rank tree under root of high rank tree
-        // (Union by Rank)
-        if (subsets[xroot].rank < subsets[yroot].rank) {
-            subsets[xroot].parent = yroot;
-        } else if (subsets[xroot].rank > subsets[yroot].rank) {
-            subsets[yroot].parent = xroot;
-        } // If ranks are same, then make one as root and increment
-        // its rank by one
+        /**
+         * Hänge den Baum mit der geringeren Gewichtung unter di Wurzel des
+         * Baums mit der größeren Gewichtung
+         */
+        if (subsets[originRoot].rank < subsets[targetRoot].rank) {
+            subsets[originRoot].parent = targetRoot;
+        } else if (subsets[originRoot].rank > subsets[targetRoot].rank) {
+            subsets[targetRoot].parent = originRoot;
+        } /**
+         * Falls beide Bäume den selben Rang (Gewichtung) haben können wir einen
+         * beliebigen auswählen und diesen zur Wurzel machen und anschliessend
+         * den Rang um 1 erhöhen
+         */
         else {
-            subsets[yroot].parent = xroot;
-            subsets[xroot].rank++;
+            subsets[targetRoot].parent = originRoot;
+            subsets[originRoot].rank++;
         }
     }
 
     /**
-     * Diese Methode führt den MST Algorithmus naxh Kruskal aus.
+     * Diese Methode implementiert den Kruskal Algorithmus (veröffentlich durch
+     * Joseph Kruskal im Jahr 1956) zur Bestimmung des Minimal aufspannenen
+     * Baums eines Graphen. Die Grundidee des Kruskal Alorithmus besteht darin,
+     * die Kanten des Graphen aufsteigender Reihenfolge, also dem ewicht oder
+     * der Kosten einer Kante durchzulaufen und jede Kante zur Lösungsmenge
+     * hinzuzufügen, die mit allen zuvor ausgewählten Kanten aber keinen Kreis
+     * bilden. Die Kanten des Grpahen müssen ungerichtet sein, also in beide
+     * Richtungen durchlaufbar sein. Der resultierende Baum ist dann minimal
+     * groß.
      *
-     * 
      * @param visual
      */
-    public void minimalSanningTree(Visuell visual) {
+    public void minimalSpanningTree(Visuell visual) {
 
         Graphics2D g2d = (Graphics2D) visual.getPanel().getGraphics();
-        g2d.setXORMode(Color.black);
+        /**
+         * Wir setzen den "Exklusiv Oder" Zeichenmodus, damit wir beim Zeichnn
+         * der Linien den Hintergrund nicht verändern, bzw. nach einem zweiten
+         * Zeichenaufruf unsere Linie wieder verschwindet.
+         */
         g2d.setStroke(new BasicStroke(EDGE_FAT_WIDTH));
 
+        /**
+         * Wir führen den folgenden Code in einem separeten Thread aus, damit
+         * die Benutzeroberfläche nicht blockiert wird, bid diese Funktion
+         * ausgeführt wurde.
+         */
         new Thread(new Runnable() {
+
             // The main function to construct MST using Kruskal's algorithm
             @Override
             public void run() {
-                // wir sortieren unsere Kanten nach Kosten (aufsteigend)
+
+                // Wir sortieren die Kanten des Graphen nach den Kosten (aufsteigend)
                 Collections.sort(edges);
 
-                // brauchen wir um unser Ergebnis zu speichern
+                // Dieses Array benötigen wir, um unser Ergebnis (Kanten) zu speichern
                 Edge[] mstEdges = new Edge[nodes.size()];
+
+                // Die Gesamtkosten setzen wir hier erst einmal auf 0.
                 totalCost = 0.0;
                 for (int idx = 0; idx < nodes.size(); ++idx) {
                     mstEdges[idx] = new Edge();
                 }
 
-                // 
-                java.util.Arrays.sort(edges.toArray());
-
-                // 
+                /**
+                 * Hier legen wir ein Array, welches so groß ist wie unsere
+                 * Anzahl Knoten, für die zu erzuegenden Subsets an.
+                 */
                 SubSet[] subSets = new SubSet[nodes.size()];
                 for (int idx = 0; idx < nodes.size(); ++idx) {
                     subSets[idx] = new SubSet();
@@ -335,47 +365,64 @@ public class Graph {
                     subSets[v].rank = 0;
                 }
 
-                int pick = 0;  
+                int pick = 0;
 
-               
-                int e = 0;
-                while (e < nodes.size() - 1) {
-                    Edge next_edge = new Edge();
-                    next_edge = edges.get(pick++);
+                int edgeIndex = 0;
+                // Wir intertieren durch alle Knoten des Graphen
+                while (edgeIndex < nodes.size() - 1) {
 
-                    int x = find(subSets, next_edge.getOrigin().getID());
-                    int y = find(subSets, next_edge.getTarget().getID());
+                    // Hole die nächste Kante (immer die kürzeste)
+                    Edge nextEdge = edges.get(pick++);
+                    // Bestimme de zugehörigen Subsets
+                    int o = find(subSets, nextEdge.getOrigin().getID());
+                    int t = find(subSets, nextEdge.getTarget().getID());
 
-                    final int ox = next_edge.getOrigin().getX();
-                    final int oy = next_edge.getOrigin().getY();
-                    final int tx = next_edge.getTarget().getX();
-                    final int ty = next_edge.getTarget().getY();
+                    // Bestimme die Koordinaten der zugehörigen Knoten
+                    final int ox = nextEdge.getOrigin().getX();
+                    final int oy = nextEdge.getOrigin().getY();
+                    final int tx = nextEdge.getTarget().getX();
+                    final int ty = nextEdge.getTarget().getY();
 
-                    // deute die gerade untersucte Kante farblich in rot an ...
-                    g2d.setColor(Color.red);
-                    g2d.drawLine(ox, oy, tx, ty);
-                    delay();
-                    // und lösche diese anschliessend wieder
-                    g2d.drawLine(ox, oy, tx, ty);
+                    // Färbe die gerade untersuchte Kante rot ein
+                    if (ox != tx && oy != ty) {
+                        g2d.setXORMode(Color.black);
 
-                    // If including this edge does't cause cycle,
-                    // include it in result and increment the index 
-                    // of result for next edge
-                    if (x != y) {
-                        mstEdges[e++] = next_edge;
-                        totalCost += next_edge.getCost();
-                        Union(subSets, x, y);
-                        // zeichne die gefundene MST Kante grün ein
-                        g2d.setColor(Color.green);
+                        g2d.setColor(Color.red);
                         g2d.drawLine(ox, oy, tx, ty);
+                        delay();
+                        // und lösche diese anschliessend wieder (exclusive or)
+                        g2d.drawLine(ox, oy, tx, ty);
+
                     }
-                    // else discard the next_edge
 
-                    visual.getProgressBar().setValue(e);
+                    /**
+                     * Falls durch das Einfügen dieser Kante ein Zyklus (Kreis)
+                     * im Graph entstehen würde, fügen wir diese Kante NICHT zur
+                     * Ergebnismenge hinzu.
+                     */
+                    if (o != t) {
+                        // füge diese Kante zum Ergebnis hinzu
+                        mstEdges[edgeIndex++] = nextEdge;
+                        // addiere die Kosten dieser Kante zu den Gesamtkosten dazu
+                        totalCost += nextEdge.getCost();
+                        Union(subSets, o, t);
+                        // Zeichne die gefundene MST Kante grün ein
+                        g2d.setColor(Color.green);
+                        g2d.setPaintMode();
+
+                        g2d.drawLine(ox, oy, tx, ty);
+                    } else {
+                        /**
+                         * Dieser Bereich würde ausgeführt werden, wenn der
+                         * Subset einen Zyklus erzeuge würde.
+                         */
+                    }
+                    // aktualiiere den Fortschrittsbalken
+                    visual.getProgressBar().setValue(edgeIndex);
                 }
-             visual.getTotalEdgesLbl().setText(df.format(totalCost));
-
+                // hier geben wir in einem Textfeld die Gesamtkosten aus
+                visual.getTotalEdgesLbl().setText(df.format(totalCost));
             }
-        } ).start();
+        }).start();
     }
 }

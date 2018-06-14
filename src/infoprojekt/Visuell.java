@@ -1,21 +1,24 @@
 /**
  * Project:
- * 
+ *
  *  Minimal Spanning Trees
  *  ESG Kornwestheim, KS1
- * 
+ *
  * Authors:
- * 
+ *
  * -´Aykon Kücük
  * - Leon Broßwitz
- * 
+ *
  * (c) June 2018
  */
-
 package infoprojekt;
 
 import java.awt.Dimension;
 import java.awt.Graphics2D;
+import java.awt.event.ActionEvent;
+import java.awt.event.ActionListener;
+import java.awt.event.FocusEvent;
+import java.awt.event.FocusListener;
 import javax.swing.JLabel;
 import javax.swing.JPanel;
 import javax.swing.JProgressBar;
@@ -24,10 +27,12 @@ import javax.swing.JProgressBar;
  *
  * @author info
  */
-public class Visuell extends javax.swing.JFrame {
+public class Visuell extends javax.swing.JFrame implements FocusListener, ActionListener {
+
+    private static final int MINIMUM_NODES = 2;
+    private static final int MAXIMUM_NODES = 2500;
 
     private Graph graph;
-   
 
     /**
      * Creates new form Visuell
@@ -37,8 +42,42 @@ public class Visuell extends javax.swing.JFrame {
 
         runBtn.setEnabled(false);
         runBtn.setVisible(true);
+
+        anzahlKnotenTxt.addFocusListener(this);
+        anzahlKnotenTxt.addActionListener(this);
+        
+         
+   
     }
 
+    private void checkAndFixValue() {
+        if (anzahlKnotenTxt.getText().isEmpty()) {
+            anzahlKnotenTxt.setText(String.valueOf(MINIMUM_NODES));
+            return;
+        }
+        try {
+            int value = Integer.parseInt(anzahlKnotenTxt.getText());
+            if (value < 2) {
+                anzahlKnotenTxt.setText(String.valueOf(MINIMUM_NODES));
+            } else if (value > MAXIMUM_NODES) {
+                anzahlKnotenTxt.setText(String.valueOf(MAXIMUM_NODES));
+            }
+        } catch (NumberFormatException e) {
+            anzahlKnotenTxt.setText(String.valueOf(MINIMUM_NODES));
+            return;
+
+        }
+    }
+
+    public void focusLost(FocusEvent e) {
+        checkAndFixValue();
+    }
+
+    public void actionPerformed(ActionEvent event) {
+
+        checkAndFixValue();
+    }
+     
     /**
      * This method is called from within the constructor to initialize the form.
      * WARNING: Do NOT modify this code. The content of this method is always
@@ -65,7 +104,9 @@ public class Visuell extends javax.swing.JFrame {
         graphBuildCbx = new javax.swing.JCheckBox();
 
         setDefaultCloseOperation(javax.swing.WindowConstants.EXIT_ON_CLOSE);
+        setTitle("Minimalaufspannende Bäume");
         setMaximumSize(new java.awt.Dimension(1024, 1024));
+        setMinimumSize(new java.awt.Dimension(640, 640));
         setPreferredSize(new java.awt.Dimension(640, 640));
 
         nodePanel.setBackground(new java.awt.Color(0, 0, 0));
@@ -171,7 +212,7 @@ public class Visuell extends javax.swing.JFrame {
                         .addComponent(erstelleBaumBtn, javax.swing.GroupLayout.PREFERRED_SIZE, 94, javax.swing.GroupLayout.PREFERRED_SIZE)
                         .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
                         .addComponent(resetBtn, javax.swing.GroupLayout.PREFERRED_SIZE, 130, javax.swing.GroupLayout.PREFERRED_SIZE)))
-                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, 27, Short.MAX_VALUE)
+                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, 26, Short.MAX_VALUE)
                 .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
                     .addGroup(layout.createSequentialGroup()
                         .addComponent(runBtn, javax.swing.GroupLayout.PREFERRED_SIZE, 75, javax.swing.GroupLayout.PREFERRED_SIZE)
@@ -224,8 +265,7 @@ public class Visuell extends javax.swing.JFrame {
 
     private void erstelleBaumBtnActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_erstelleBaumBtnActionPerformed
         if (platzierungModusCombo.getSelectedIndex() == 0) {
-            if (anzahlKnotenTxt.getText().isEmpty())
-            {
+            if (anzahlKnotenTxt.getText().isEmpty()) {
                 anzahlKnotenTxt.setText("2");
             }
             int nodeCount = Integer.valueOf(anzahlKnotenTxt.getText());
@@ -238,7 +278,7 @@ public class Visuell extends javax.swing.JFrame {
             drawGraph();
             runBtn.setEnabled(true);
             progressBar.setValue(0);
-            
+
         } else {
             //Manuell
         }
@@ -246,29 +286,22 @@ public class Visuell extends javax.swing.JFrame {
 
     private void runBtnActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_runBtnActionPerformed
         graph.setDelay(delaySlider.getValue());
-        progressBar.setMaximum(graph.getNodeCount()-1);
+        progressBar.setMaximum(graph.getNodeCount() - 1);
         progressBar.setValue(0);
-        graph.minimalSanningTree(this);
+        graph.minimalSpanningTree(this);
         runBtn.setEnabled(false);
 
     }//GEN-LAST:event_runBtnActionPerformed
 
     private void platzierungModusComboActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_platzierungModusComboActionPerformed
         reset();
-        anzahlKnotenTxt.setText("");
         erstelleBaumBtn.setVisible(platzierungModusCombo.getSelectedIndex() == 0);
 
-                
+
     }//GEN-LAST:event_platzierungModusComboActionPerformed
 
     private void anzahlKnotenTxtActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_anzahlKnotenTxtActionPerformed
-        try {
-            if (Integer.valueOf(anzahlKnotenTxt.getText()) < 1) {
-                anzahlKnotenTxt.setText("0");
-            }
-        } catch (NumberFormatException e) {
-            anzahlKnotenTxt.setText("0");
-        }
+
     }//GEN-LAST:event_anzahlKnotenTxtActionPerformed
 
     private void resetBtnActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_resetBtnActionPerformed
@@ -282,42 +315,46 @@ public class Visuell extends javax.swing.JFrame {
 
         if (platzierungModusCombo.getSelectedIndex() == 1) {
             Graphics2D g2d = (Graphics2D) nodePanel.getGraphics();
-            int x = evt.getX() - Node.width/ 2;
+            int x = evt.getX() - Node.width / 2;
             int y = evt.getY() - Node.width / 2;
             graph.addNode(graph.getNodeCount(), x, y);
             graph.draw(g2d, graphBuildCbx.isSelected());
             anzahlKnotenTxt.setText(String.valueOf(graph.getNodeCount()));
         }
 
-        if (graph != null)
+        if (graph != null) {
             runBtn.setEnabled(graph.getNodeCount() > 1);
+        }
 
     }//GEN-LAST:event_nodePanelMouseClicked
 
     private void delaySliderStateChanged(javax.swing.event.ChangeEvent evt) {//GEN-FIRST:event_delaySliderStateChanged
-       delayLbl.setText(delaySlider.getValue()+ " ms");
-       
+        delayLbl.setText(delaySlider.getValue() + " ms");
+
     }//GEN-LAST:event_delaySliderStateChanged
 
     /**
      *
      */
     private void reset() {
+
         graph = new Graph(nodePanel.getSize());
-        graph.init(Integer.valueOf(anzahlKnotenTxt.getText()));
         nodePanel.getGraphics().fillRect(0, 0, nodePanel.getWidth(), nodePanel.getHeight());
         totalEdgesLbl.setText("");
-
     }
 
     /**
      * @param args the command line arguments
      */
     public static void main(String args[]) {
-        /* Set the Nimbus look and feel */
+        /*
+         * Set the Nimbus look and feel
+         */
         //<editor-fold defaultstate="collapsed" desc=" Look and feel setting code (optional) ">
-        /* If Nimbus (introduced in Java SE 6) is not available, stay with the default look and feel.
-         * For details see http://download.oracle.com/javase/tutorial/uiswing/lookandfeel/plaf.html 
+        /*
+         * If Nimbus (introduced in Java SE 6) is not available, stay with the
+         * default look and feel. For details see
+         * http://download.oracle.com/javase/tutorial/uiswing/lookandfeel/plaf.html
          */
         try {
             for (javax.swing.UIManager.LookAndFeelInfo info : javax.swing.UIManager.getInstalledLookAndFeels()) {
@@ -337,7 +374,9 @@ public class Visuell extends javax.swing.JFrame {
         }
         //</editor-fold>
 
-        /* Create and display the form */
+        /*
+         * Create and display the form
+         */
         java.awt.EventQueue.invokeLater(new Runnable() {
             public void run() {
                 new Visuell().setVisible(true);
@@ -363,23 +402,18 @@ public class Visuell extends javax.swing.JFrame {
     private javax.swing.JLabel totalEdgesLbl;
     // End of variables declaration//GEN-END:variables
 
-    public JProgressBar getProgressBar()
-    {
+    public JProgressBar getProgressBar() {
         return progressBar;
     }
-    
-    public JPanel getPanel()
-    {
+
+    public JPanel getPanel() {
         return nodePanel;
     }
-  
-    public JLabel getTotalEdgesLbl()
-    {
+
+    public JLabel getTotalEdgesLbl() {
         return totalEdgesLbl;
     }
-        
-    
-            
+
     /**
      *
      */
@@ -402,7 +436,11 @@ public class Visuell extends javax.swing.JFrame {
      */
     private void drawGraph() {
 
-        graph.draw(nodePanel.getGraphics(), graphBuildCbx.isSelected());   
+        graph.draw(nodePanel.getGraphics(), graphBuildCbx.isSelected());
+    }
+
+    @Override
+    public void focusGained(FocusEvent e) {
     }
 
 }
