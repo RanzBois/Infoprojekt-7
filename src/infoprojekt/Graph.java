@@ -117,6 +117,8 @@ public class Graph {
      * @return Anzahl Knoten des Graphen
      */
     public int getNodeCount() {
+        if (nodes == null)
+            return 0;
         return nodes.size();
     }
 
@@ -164,6 +166,10 @@ public class Graph {
         // erzeuge einen neuen Knoten
         Node n = new Node(id, x, y);
         // Hänge den neuen Knoten an das Ende unseres Kontenarray
+        if (nodes == null)
+          init(2);
+            
+       
         nodes.add(n);
 
         // Wenn wir mindestens einen Knoten haben ...
